@@ -1,3 +1,10 @@
+# Generate a random integer number between max (exclusive) and min(inclusive).
+#
+# @param max [int]
+# @param min [int]
+random = (max, min) ->
+    Math.floor(Math.random() * (max - min)) + min
+
 genetic = Genetic.create()
 
 # genetic.optimize = Genetic.Optimize.Maximize;

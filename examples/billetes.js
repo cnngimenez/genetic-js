@@ -1,5 +1,9 @@
 (function() {
-  var genetic;
+  var genetic, random;
+
+  random = function(max, min) {
+    return Math.floor(Math.random() * (max - min)) + min;
+  };
 
   genetic = Genetic.create();
 
