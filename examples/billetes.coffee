@@ -1,11 +1,12 @@
+genetic = Genetic.create()
+
 # Generate a random integer number between max (exclusive) and min(inclusive).
 #
 # @param max [int]
 # @param min [int]
-random = (max, min) ->
+genetic.random = (max, min) ->
     Math.floor(Math.random() * (max - min)) + min
 
-genetic = Genetic.create()
 
 # genetic.optimize = Genetic.Optimize.Maximize;
 genetic.optimize = Genetic.Optimize.Minimize;
@@ -27,7 +28,7 @@ genetic.seed = () ->
                     data.push(1)
                 else
                     max = Math.floor(amount / this.userData["denominaciones"][i])
-                    data.push(random(max,1))
+                    data.push(this.random(max,1))
             else
                 data.push(0)
             amount -= data[i] * this.userData["denominaciones"][i]
@@ -40,8 +41,8 @@ genetic.seed = () ->
 
 genetic.mutate = (entity) ->
     if Math.random() < prob
-        index = random(this.userData["denominaciones"].length, 0)
-        entity[index] = random(this.userData["solution"], 0)
+        index = this.random(this.userData["denominaciones"].length, 0)
+        entity[index] = this.random(this.userData["solution"], 0)
 
 genetic.crossover = (mother, father) ->
     offsprings = []
@@ -64,6 +65,35 @@ genetic.generation = (pop, generation, stats) ->
     this.fitness(pop[0].entity) > 0
 
 genetic.notification = (pop, generation, stats, isFinished) ->
+    value = pop[0].entity
+    @last = @last||value
+
+    solution = []
+    poblacion = []
+    for i in value
+        diff = value[i] - @last[i]
+        style = "background: transparent;"
+        if diff > 0
+            style = "background: rgb(0,200,50); color: #fff;"
+        else if diff < 0
+            style = "background: rgb(0,100,50); color: #fff;"
+        solution.push("<span style=\"" + style + "\">" + value[i] +
+    "</span>");
+
+    for i in pop
+        poblacion.push(pop[i].entity.json("") + '(' + pop[i].fitness +
+        ')')
+
+	buf = ""
+	buf += "<tr>"
+	buf += "<td>" + generation + "</td>"
+	buf += "<td>" + pop[0].fitness + "</td>"
+	buf += "<td>" + solution.join("") + "</td>"
+    buf += "<td>" + poblacion.join(",") + "</td>"
+	buf += "</tr>"
+	$("#results tbody").prepend(buf)
+	
+	@last = value
 
 $(document).ready( () ->
     $("#solve"). click( () ->

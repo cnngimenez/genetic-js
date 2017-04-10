@@ -1,11 +1,11 @@
 (function() {
-  var genetic, random;
-
-  random = function(max, min) {
-    return Math.floor(Math.random() * (max - min)) + min;
-  };
+  var genetic;
 
   genetic = Genetic.create();
+
+  genetic.random = function(max, min) {
+    return Math.floor(Math.random() * (max - min)) + min;
+  };
 
   genetic.optimize = Genetic.Optimize.Minimize;
 
@@ -24,7 +24,7 @@
           data.push(1);
         } else {
           max = Math.floor(amount / this.userData["denominaciones"][i]);
-          data.push(random(max, 1));
+          data.push(this.random(max, 1));
         }
       } else {
         data.push(0);
@@ -41,8 +41,8 @@
   genetic.mutate = function(entity) {
     var index;
     if (Math.random() < prob) {
-      index = random(this.userData["denominaciones"].length, 0);
-      return entity[index] = random(this.userData["solution"], 0);
+      index = this.random(this.userData["denominaciones"].length, 0);
+      return entity[index] = this.random(this.userData["solution"], 0);
     }
   };
 
