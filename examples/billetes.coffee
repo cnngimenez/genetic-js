@@ -4,7 +4,7 @@ genetic = Genetic.create()
 #
 # @param max [int]
 # @param min [int]
-genetic.random = (max, min) ->
+genetic.random_fnc = (max, min) ->
     Math.floor(Math.random() * (max - min)) + min
 
 
@@ -23,26 +23,29 @@ genetic.seed = () ->
         if (this.userData["denominaciones"][i] <= amount) and (Math.random() < 0.5)
             # We add a bill depending of a probability.
             # If it is the exact amount, add one.
-                # If it is more, add at least one to a maximum depending on a probability
-                if this.userData["denominaciones"][i] == amount
-                    data.push(1)
-                else
-                    max = Math.floor(amount / this.userData["denominaciones"][i])
-                    data.push(this.random(max,1))
+            # If it is more, add at least one to a maximum depending on a probability
+            if this.userData["denominaciones"][i] == amount
+                data.push(1)
             else
-                data.push(0)
-            amount -= data[i] * this.userData["denominaciones"][i]
+                max = Math.floor(amount / this.userData["denominaciones"][i])
+                data.push(genetic.random_fnc(max,1))
+        else
+            data.push(0)
+        amount -= data[i] * this.userData["denominaciones"][i]
 
-        # Use the rest witht the one denomination
-        if amount > 0
-            data[0] += amount
-
-        data
+    # Use the rest witht the one denomination
+    if amount > 0
+        data[0] += amount
+    data
 
 genetic.mutate = (entity) ->
-    if Math.random() < prob
-        index = this.random(this.userData["denominaciones"].length, 0)
-        entity[index] = this.random(this.userData["solution"], 0)
+    # if Math.random() < 0.25
+    console.log('mutation -------------------->')
+    index = genetic.random_fnc(this.userData["denominaciones"].length, 0)
+    entity[index] = genetic.random_fnc(this.userData["solution"], 0)
+    console.log(entity)
+    entity
+
 
 genetic.crossover = (mother, father) ->
     offsprings = []
@@ -59,41 +62,44 @@ genetic.fitness = (entity) ->
     sum = 0
     for i in entity
         sum += i
-    this.userData["solution"] - sum
+    sum
     
 genetic.generation = (pop, generation, stats) ->
-    this.fitness(pop[0].entity) > 0
+    # this.fitness(pop[0].entity) > 0
+    generation < 10
 
 genetic.notification = (pop, generation, stats, isFinished) ->
+
+    console.log(pop)
+    console.log(generation)
+
     value = pop[0].entity
     @last = @last||value
 
     solution = []
     poblacion = []
-    for i in value
-        diff = value[i] - @last[i]
+    for elt,i in value
+        diff = elt - @last[i]
         style = "background: transparent;"
         if diff > 0
             style = "background: rgb(0,200,50); color: #fff;"
         else if diff < 0
             style = "background: rgb(0,100,50); color: #fff;"
-        solution.push("<span style=\"" + style + "\">" + value[i] +
-    "</span>");
+        solution.push("<span style=\"" + style + "\">" + elt + "</span>")
 
-    for i in pop
-        poblacion.push(pop[i].entity.json("") + '(' + pop[i].fitness +
-        ')')
+    for elt,i in pop
+        poblacion.push(
+            JSON.stringify(elt.entity) + '(' + elt.fitness + ')')
 
-	buf = ""
-	buf += "<tr>"
-	buf += "<td>" + generation + "</td>"
-	buf += "<td>" + pop[0].fitness + "</td>"
-	buf += "<td>" + solution.join("") + "</td>"
+    buf = ""
+    buf += "<tr>"
+    buf += "<td>" + generation + "</td>"
+    buf += "<td>" + pop[0].fitness + "</td>"
+    buf += "<td>" + solution.join("") + "</td>"
     buf += "<td>" + poblacion.join(",") + "</td>"
-	buf += "</tr>"
-	$("#results tbody").prepend(buf)
-	
-	@last = value
+    buf += "</tr>"
+    $("#results tbody").prepend(buf)
+    @last = value
 
 $(document).ready( () ->
     $("#solve"). click( () ->
@@ -107,9 +113,10 @@ $(document).ready( () ->
             "skip": 20
 
         userData=
-            "solution": $("#quote").val()
+            "solution": Number($("#quote").val())
             "denominaciones": [1, 2, 5, 10, 20, 50, 100, 500]
 
+        console.log("Evolving...")
         genetic.evolve(config, userData)
 
     )
