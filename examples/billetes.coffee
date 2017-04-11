@@ -47,22 +47,35 @@ genetic.mutate = (entity) ->
     entity
 
 
+genetic.value_pesos = (entity) ->
+    sum = 0
+    for elt,i in entity
+        den = this.userData["denominaciones"][i]
+        if den? and elt?
+            sum += elt*den
+    return sum
+
 genetic.crossover = (mother, father) ->
     offsprings = []
-    m_fhalf = mother.slice(0,2)
-    m_shalf = mother.slice(2,4)
-    f_fhalf = father.slice(0,2)
-    f_shalf = father.slice(2,4)
+    mh = mother.length/2
+    fh = father.length/2
+    m_fhalf = mother.slice(0,mh)
+    m_shalf = mother.slice(mh,mother.length)
+    f_fhalf = father.slice(0,fh)
+    f_shalf = father.slice(fh,father.length)
     
     offsprings.push(m_fhalf.concat(f_shalf))
     offsprings.push(f_fhalf.concat(m_shalf))
     offsprings
 
 genetic.fitness = (entity) ->
-    sum = 0
-    for i in entity
-        sum += i
-    sum
+    if genetic.value_pesos(entity) != this.userData["solution"]
+        return this.userData["solution"] * 10
+    else
+        sum = 0
+        for i in entity
+            sum += i
+        return sum
     
 genetic.generation = (pop, generation, stats) ->
     # this.fitness(pop[0].entity) > 0
@@ -106,10 +119,10 @@ $(document).ready( () ->
         $("#results tbody").html("")
 
         config =
-            "iterations" : 4000
+            "iterations" : 10000
             "size" : 20
             "crossover": 0.5
-            "mutation": 0.3
+            "mutation": 0.0
             "skip": 20
 
         userData=
