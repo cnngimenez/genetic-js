@@ -1,4 +1,4 @@
-genetic = Genetic.create()
+this.genetic = Genetic.create()
 
 # Generate a random integer number between max (exclusive) and min(inclusive).
 #
@@ -19,7 +19,7 @@ genetic.select2 = Genetic.Select2.Tournament2;
 genetic.seed = () ->
     data = []
     for i in [0..@userData['grafo']['arcs'].length-1]
-        colour_index = genetic.random_fnc(@userData['pinturas'].length-1, 0)
+        colour_index = genetic.random_fnc(@userData['pinturas'].length, 0)
         colour = @userData['pinturas'][colour_index]
         data.push(colour)
     data
@@ -27,8 +27,8 @@ genetic.seed = () ->
 # We simply change to a random color one random arc.
 genetic.mutate = (entity) ->
     console.log('mutation -------------------->')
-    colour_index = genetic.random_fnc(@userData["pinturas"].length-1, 0)
-    entity_index = genetic.random_fnc(entity.length-1, 0)
+    colour_index = genetic.random_fnc(@userData["pinturas"].length, 0)
+    entity_index = genetic.random_fnc(entity.length, 0)
     entity[entity_index] = @userData["pinturas"][colour_index]
     console.log(entity)
     entity
@@ -122,22 +122,22 @@ $(document).ready( () ->
     $("#solve"). click( () ->
         $("#results tbody").html("")
 
-        config =
-            "iterations" : 10000
+        @config =
+            "iterations" : 4000
             "size" : 20
             "crossover": 0.5
-            "mutation": 0.0
+            "mutation": 0.25
             "skip": 20
 
-        userData=
+        @userData=
             "solution": Number($("#quote").val())
             "pinturas": ["r", "g", "b"]
             "grafo":
               "nodes": [1,2,3,4]
-              "arcs": [[1,2], [2,3], [2,4]]
+              "arcs": [[1,2], [2,3], [2,4], [3,4], [4,1]]
 
         console.log("Evolving...")
-        genetic.evolve(config, userData)
+        genetic.evolve(@config, @userData)
 
     )
 )
