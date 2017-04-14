@@ -68,18 +68,37 @@ genetic.crossover = (mother, father) ->
     offsprings.push(f_fhalf.concat(m_shalf))
     offsprings
 
+# Return the adyacent arcs to the given node.
+# @return An array of two-element array [[index, arc]]
+adyacent_arcs = (node) ->
+    adyacent = []
+    for arc,index in @userData['grafo']['arcs']
+        if (arc[0] == node) or (arc[1] == node)
+            adyacent.push(
+                'index': index
+                'arc': arc
+            )
+    adyacent
+
+# For each node, search the adyacent arcs.
+# Then, count the adyacent arcs that has the same color.
 genetic.fitness = (entity) ->
-    if genetic.value_pesos(entity) != this.userData["solution"]
-        return this.userData["solution"] * 10
-    else
-        sum = 0
-        for i in entity
-            sum += i
-        return sum
+    # Find node's adyacent arcs
+    for node in @userData['grafo']['nodes']
+        lst_arcs = adyacent_arcs(node)
+        #
+        repeated = 0
+        color_used = []
+        for arc in lst_arcs
+            if color_used.indexOf(entity[arc[0]]) == 0
+                repeated ++
+                color_used.push(entity[arc[0]])
+
+
 
 genetic.generation = (pop, generation, stats) ->
     # this.fitness(pop[0].entity) > 0
-    generation < 10
+    this.fitness(pop[0].entity) > 0
 
 genetic.notification = (pop, generation, stats, isFinished) ->
 
