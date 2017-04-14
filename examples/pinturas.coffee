@@ -18,24 +18,10 @@ genetic.select2 = Genetic.Select2.Tournament2;
 
 genetic.seed = () ->
     data = []
-    amount = this.userData["solution"]
-    for i in [0..(this.userData["denominaciones"].length - 1)]
-        if (this.userData["denominaciones"][i] <= amount) and (Math.random() < 0.5)
-            # We add a bill depending of a probability.
-            # If it is the exact amount, add one.
-            # If it is more, add at least one to a maximum depending on a probability
-            if this.userData["denominaciones"][i] == amount
-                data.push(1)
-            else
-                max = Math.floor(amount / this.userData["denominaciones"][i])
-                data.push(genetic.random_fnc(max,1))
-        else
-            data.push(0)
-        amount -= data[i] * this.userData["denominaciones"][i]
-
-    # Use the rest witht the one denomination
-    if amount > 0
-        data[0] += amount
+    for i in [0..@userData['grafo']['arcs'].length-1]
+        colour_index = genetic.random_fnc(0, @userData['pinturas'].length-1)
+        colour = @userData['pinturas'][colour_index]
+        data.push(colour)
     data
 
 genetic.mutate = (entity) ->
@@ -45,15 +31,6 @@ genetic.mutate = (entity) ->
     entity[index] = genetic.random_fnc(this.userData["solution"], 0)
     console.log(entity)
     entity
-
-
-genetic.value_pesos = (entity) ->
-    sum = 0
-    for elt,i in entity
-        den = this.userData["denominaciones"][i]
-        if den? and elt?
-            sum += elt*den
-    return sum
 
 genetic.crossover = (mother, father) ->
     offsprings = []
@@ -69,8 +46,9 @@ genetic.crossover = (mother, father) ->
     offsprings
 
 # Return the adyacent arcs to the given node.
-# @return An array of two-element array [[index, arc]]
-adyacent_arcs = (node) ->
+#
+# @return An array of objects with two fields: index and arc.
+genetic.adyacent_arcs = (node) ->
     adyacent = []
     for arc,index in @userData['grafo']['arcs']
         if (arc[0] == node) or (arc[1] == node)
@@ -84,18 +62,24 @@ adyacent_arcs = (node) ->
 # Then, count the adyacent arcs that has the same color.
 genetic.fitness = (entity) ->
     # Find node's adyacent arcs
+    sum_of_arcs_repeated = 0
     for node in @userData['grafo']['nodes']
-        lst_arcs = adyacent_arcs(node)
-        #
+        lst_arcs = genetic.adyacent_arcs(node)
+        # We take one arc, if the color was used, we add one to repeated, if not
+        # we just add the color to the used and take another.
         repeated = 0
         color_used = []
         for arc in lst_arcs
-            if color_used.indexOf(entity[arc[0]]) == 0
-                repeated ++
-                color_used.push(entity[arc[0]])
+            if color_used.indexOf(entity[arc.index]) < 0
+                color_used.push(entity[arc.index])
+            else
+                repeated += 1
+        sum_of_arcs_repeated += repeated
+    sum_of_arcs_repeated
 
-
-
+# Finish when we find one convination that no arc's colour is repeated.
+#
+# That's mean fitness is cero.
 genetic.generation = (pop, generation, stats) ->
     # this.fitness(pop[0].entity) > 0
     this.fitness(pop[0].entity) > 0
