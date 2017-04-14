@@ -18,7 +18,7 @@
     var colour, colour_index, data, i, j, ref;
     data = [];
     for (i = j = 0, ref = this.userData['grafo']['arcs'].length - 1; 0 <= ref ? j <= ref : j >= ref; i = 0 <= ref ? ++j : --j) {
-      colour_index = genetic.random_fnc(0, this.userData['pinturas'].length - 1);
+      colour_index = genetic.random_fnc(this.userData['pinturas'].length - 1, 0);
       colour = this.userData['pinturas'][colour_index];
       data.push(colour);
     }
@@ -26,10 +26,11 @@
   };
 
   genetic.mutate = function(entity) {
-    var index;
+    var colour_index, entity_index;
     console.log('mutation -------------------->');
-    index = genetic.random_fnc(this.userData["denominaciones"].length, 0);
-    entity[index] = genetic.random_fnc(this.userData["solution"], 0);
+    colour_index = genetic.random_fnc(this.userData["pinturas"].length - 1, 0);
+    entity_index = genetic.random_fnc(entity.length - 1, 0);
+    entity[entity_index] = this.userData["pinturas"][colour_index];
     console.log(entity);
     return entity;
   };

@@ -19,16 +19,17 @@ genetic.select2 = Genetic.Select2.Tournament2;
 genetic.seed = () ->
     data = []
     for i in [0..@userData['grafo']['arcs'].length-1]
-        colour_index = genetic.random_fnc(0, @userData['pinturas'].length-1)
+        colour_index = genetic.random_fnc(@userData['pinturas'].length-1, 0)
         colour = @userData['pinturas'][colour_index]
         data.push(colour)
     data
 
+# We simply change to a random color one random arc.
 genetic.mutate = (entity) ->
-    # if Math.random() < 0.25
     console.log('mutation -------------------->')
-    index = genetic.random_fnc(this.userData["denominaciones"].length, 0)
-    entity[index] = genetic.random_fnc(this.userData["solution"], 0)
+    colour_index = genetic.random_fnc(@userData["pinturas"].length-1, 0)
+    entity_index = genetic.random_fnc(entity.length-1, 0)
+    entity[entity_index] = @userData["pinturas"][colour_index]
     console.log(entity)
     entity
 
