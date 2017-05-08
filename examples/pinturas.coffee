@@ -13,8 +13,28 @@ genetic.optimize = Genetic.Optimize.Minimize;
 # genetic.select1 = Genetic.Select1.Fittest;
 # genetic.select2 = Genetic.Select2.FittestRandom;
 
-genetic.select1 = Genetic.Select1.Tournament2;
-genetic.select2 = Genetic.Select2.Tournament2;
+# genetic.select1 = Genetic.Select1.Tournament2;
+# genetic.select2 = Genetic.Select2.Tournament2;
+genetic.select1alg = Genetic.Select1.Tournament2;
+genetic.select2alg = Genetic.Select2.Tournament2;
+
+genetic.select1 = (pop) ->
+    selected = genetic.select1alg(pop)
+    console.log("|-- Selection 1 --|")
+    str = ""
+    for elt in selected
+        str += elt + " | "
+    console.log(str)
+    return selected
+
+genetic.select2 = (pop) ->
+    selected = genetic.select2alg(pop)
+    console.log("|-- Selection 2 --|")
+    str = ""
+    for elt in selected
+        str += elt  + " | "
+    console.log(str)
+    return selected    
 
 genetic.seed = () ->
     data = []
@@ -26,14 +46,17 @@ genetic.seed = () ->
 
 # We simply change to a random color one random arc.
 genetic.mutate = (entity) ->
-    console.log('mutation -------------------->')
+    console.log('      |-- mutation --|')
     colour_index = genetic.random_fnc(@userData["pinturas"].length, 0)
     entity_index = genetic.random_fnc(entity.length, 0)
     entity[entity_index] = @userData["pinturas"][colour_index]
-    console.log(entity)
+    console.log('    ' + String(entity))
     entity
 
 genetic.crossover = (mother, father) ->
+    console.log '    |-- crossover --|'
+    console.log '   ' + mother + " <-> " + father
+    
     offsprings = []
     mh = mother.length/2
     fh = father.length/2
@@ -87,8 +110,12 @@ genetic.generation = (pop, generation, stats) ->
 
 genetic.notification = (pop, generation, stats, isFinished) ->
 
-    console.log(pop)
-    console.log(generation)
+    # console.log("población:")
+    # pob = ""
+    # for elt,i in pop
+    #     pob += elt.entity + "(" + elt.fitness + ")"
+    # console.log(pob)
+    # console.log("generación: " + generation)
 
     value = pop[0].entity
     @last = @last||value
@@ -117,6 +144,8 @@ genetic.notification = (pop, generation, stats, isFinished) ->
     buf += "</tr>"
     $("#results tbody").prepend(buf)
     @last = value
+    console.log('__________________________________________________')
+    console.log('Generation: ' + generation)
 
 $(document).ready( () ->
     $("#solve"). click( () ->

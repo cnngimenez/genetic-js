@@ -134,3 +134,5 @@ $(document).ready( () ->
 
     )
 )
+
+this.genetic = genetic

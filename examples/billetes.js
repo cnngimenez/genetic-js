@@ -144,4 +144,6 @@
     });
   });
 
+  this.genetic = genetic;
+
 }).call(this);
